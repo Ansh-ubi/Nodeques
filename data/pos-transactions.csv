@@ -1,0 +1,16 @@
+transaction_id,product,category,price,quantity,total,datetime,payment_method
+TXN1001,Milk,Grocery,50,2,100,2026-04-12 09:15:00,Cash
+TXN1002,Bread,Grocery,40,3,120,2026-04-12 09:45:00,UPI
+TXN1003,Shampoo,Personal Care,180,1,180,2026-04-12 10:05:00,Card
+TXN1004,Soap,Personal Care,30,4,120,2026-04-12 10:20:00,Cash
+TXN1005,Rice 5kg,Grocery,350,1,350,2026-04-12 11:00:00,UPI
+TXN1006,Toothpaste,Personal Care,90,2,180,2026-04-12 11:30:00,Card
+TXN1007,Chocolate,Snacks,20,5,100,2026-04-12 12:10:00,Cash
+TXN1008,Soft Drink,Snacks,60,2,120,2026-04-12 12:45:00,UPI
+TXN1009,Cooking Oil 1L,Grocery,150,1,150,2026-04-12 13:15:00,Card
+TXN1010,Biscuits,Snacks,25,6,150,2026-04-12 13:45:00,Cash
+TXN1011,Face Wash,Personal Care,220,1,220,2026-04-12 14:10:00,UPI
+TXN1012,Detergent Powder,Grocery,200,1,200,2026-04-12 14:40:00,Card
+TXN1013,Tea 500g,Grocery,180,1,180,2026-04-12 15:05:00,Cash
+TXN1014,Coffee 200g,Beverages,250,1,250,2026-04-12 15:30:00,UPI
+TXN1015,Chips,Snacks,30,3,90,2026-04-12 16:00:00,Cash

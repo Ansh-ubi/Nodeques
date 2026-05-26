@@ -1,0 +1,17 @@
+[
+{"transactionId":"TXN1001","product":"Milk","category":"Grocery","price":50,"quantity":2,"total":100,"paymentMethod":"Cash","datetime":"2026-04-12T03:45:00.000Z","isHighValue":false},
+{"transactionId":"TXN1002","product":"Bread","category":"Grocery","price":40,"quantity":3,"total":120,"paymentMethod":"UPI","datetime":"2026-04-12T04:15:00.000Z","isHighValue":false},
+{"transactionId":"TXN1003","product":"Shampoo","category":"Personal Care","price":180,"quantity":1,"total":180,"paymentMethod":"Card","datetime":"2026-04-12T04:35:00.000Z","isHighValue":true},
+{"transactionId":"TXN1004","product":"Soap","category":"Personal Care","price":30,"quantity":4,"total":120,"paymentMethod":"Cash","datetime":"2026-04-12T04:50:00.000Z","isHighValue":false},
+{"transactionId":"TXN1005","product":"Rice 5kg","category":"Grocery","price":350,"quantity":1,"total":350,"paymentMethod":"UPI","datetime":"2026-04-12T05:30:00.000Z","isHighValue":true},
+{"transactionId":"TXN1006","product":"Toothpaste","category":"Personal Care","price":90,"quantity":2,"total":180,"paymentMethod":"Card","datetime":"2026-04-12T06:00:00.000Z","isHighValue":true},
+{"transactionId":"TXN1007","product":"Chocolate","category":"Snacks","price":20,"quantity":5,"total":100,"paymentMethod":"Cash","datetime":"2026-04-12T06:40:00.000Z","isHighValue":false},
+{"transactionId":"TXN1008","product":"Soft Drink","category":"Snacks","price":60,"quantity":2,"total":120,"paymentMethod":"UPI","datetime":"2026-04-12T07:15:00.000Z","isHighValue":false},
+{"transactionId":"TXN1009","product":"Cooking Oil 1L","category":"Grocery","price":150,"quantity":1,"total":150,"paymentMethod":"Card","datetime":"2026-04-12T07:45:00.000Z","isHighValue":false},
+{"transactionId":"TXN1010","product":"Biscuits","category":"Snacks","price":25,"quantity":6,"total":150,"paymentMethod":"Cash","datetime":"2026-04-12T08:15:00.000Z","isHighValue":false},
+{"transactionId":"TXN1011","product":"Face Wash","category":"Personal Care","price":220,"quantity":1,"total":220,"paymentMethod":"UPI","datetime":"2026-04-12T08:40:00.000Z","isHighValue":true},
+{"transactionId":"TXN1012","product":"Detergent Powder","category":"Grocery","price":200,"quantity":1,"total":200,"paymentMethod":"Card","datetime":"2026-04-12T09:10:00.000Z","isHighValue":true},
+{"transactionId":"TXN1013","product":"Tea 500g","category":"Grocery","price":180,"quantity":1,"total":180,"paymentMethod":"Cash","datetime":"2026-04-12T09:35:00.000Z","isHighValue":true},
+{"transactionId":"TXN1014","product":"Coffee 200g","category":"Beverages","price":250,"quantity":1,"total":250,"paymentMethod":"UPI","datetime":"2026-04-12T10:00:00.000Z","isHighValue":true},
+{"transactionId":"TXN1015","product":"Chips","category":"Snacks","price":30,"quantity":3,"total":90,"paymentMethod":"Cash","datetime":"2026-04-12T10:30:00.000Z","isHighValue":false}
+]
