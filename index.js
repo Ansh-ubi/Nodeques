@@ -1747,109 +1747,230 @@ async function getUser(userId) {
 
 //redis rate lmiter
 
-const express = require("express");
-const redis = require("redis");
+// const express = require("express");
+// const redis = require("redis");
+
+// const app = express();
+// app.use(express.json());
+
+// const Port = 3000;
+
+// const MAX_REQUESTS = 5; // max requests per window
+// const WINDOW_SIZE = 60 * 1000; 
+
+// const redisClient = redis.createClient({
+//     socket:{
+//         host: "127.0.0.1",
+//         port: 6379
+//     },
+// });
+
+// redisClient.on("connect",()=>{
+//     console.log("Connected to Redis");
+// });
+
+// redisClient.on("error",(err)=>{
+//     console.error("Error connecting to Redis:", err);
+// });
+
+// //ratelimiter middleware
+// async function rateLimiter(req,res,next){
+//     try{
+//         const ip = req.ip;
+//         const key = `rate:${ip}`;
+
+//         //lua script
+//         const luaScript = `
+//         local current 
+//         current = redis.call("INCR", KEYS[1])
+//         if tonumber(current) == 1 then 
+//         redis.call("EXPIRE", KEYS[1],ARGV[1])
+//         end
+//         return current
+//         `;
+//         //Execute lua script atomically
+//         const currentrequests = await redisClient.eval(luaScript,{
+//             keys: [key],
+//            arguments: [String(WINDOW_SIZE / 1000)],
+//         });
+
+//         //calculate remaining request
+//         const remaining = MAX_REQUESTS - currentrequests;
+
+//         //set response headers
+//         res.set({
+//             "X-RateLimit-Limit": MAX_REQUESTS,
+//             "X-RateLimit-Remaining": Math.max(0,remaining),
+//             "X-RateLimit-Reset": Date.now() + WINDOW_SIZE,
+//         });
+
+//         // block if limit is exceeded
+//         if(currentrequests > MAX_REQUESTS){
+//             const ttl = await redisClient.ttl(key);
+//             res.set({"Retry-After": ttl,});
+//             res.status(429).json({message: "Too many requests. Please try again later.",retryAfter: ttl});
+//         }else{
+
+//             next();
+//         }
+//     }catch(err){
+//         console.error("Error in rate limiter:", err);
+//         res.status(500).json({message:"Internal server error"});
+//     }
+// }
+
+// //Apply rate limiter
+// app.use(rateLimiter);
+
+// app.get("/",(req,res)=>{
+//     res.json({success:true,message:"running successfully"});
+// })
+
+// //protected route
+// app.get("/api/data",(req,res) => {
+//     res.json({success:true,message:"This is protected data",
+//         data: {
+//             name: "Ansh Gupta",
+//             description: "This data is protected by rate limiting middleware."
+//         }
+//     });
+// })
+
+// //login route
+// app.post("/login",(req,res) => {
+//     res.json({success:true,message:"Login successful"});
+// });
+
+// //start server
+// async function startServer(){
+//     try{
+//         await redisClient.connect();
+//         app.listen(Port,() => {
+//             console.log(`Server running on port ${Port}`);
+//         });
+//     } catch(err){
+//         console.error("Failed to start server:", err);
+//     }
+// }
+// startServer();
+
+//Upload a file directly to AWS S3 from Node.js.
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+
+import { S3Client,PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+
+dotenv.config();
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
-const Port = 3000;
+//now aws s3 config
 
-const MAX_REQUESTS = 5; // max requests per window
-const WINDOW_SIZE = 60 * 1000; 
+const s3 = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials:{
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 
-const redisClient = redis.createClient({
-    socket:{
-        host: "127.0.0.1",
-        port: 6379
     },
 });
 
-redisClient.on("connect",()=>{
-    console.log("Connected to Redis");
-});
+//get upload url
 
-redisClient.on("error",(err)=>{
-    console.error("Error connecting to Redis:", err);
-});
-
-//ratelimiter middleware
-async function rateLimiter(req,res,next){
+app.post("/generate-url",async(req,res)=>{
     try{
-        const ip = req.ip;
-        const key = `rate:${ip}`;
-
-        //lua script
-        const luaScript = `
-        local current 
-        current = redis.call("INCR", KEYS[1])
-        if tonumber(current) == 1 then 
-        redis.call("EXPIRE", KEYS[1],ARGV[1])
-        end
-        return current
-        `;
-        //Execute lua script atomically
-        const currentrequests = await redisClient.eval(luaScript,{
-            keys: [key],
-           arguments: [String(WINDOW_SIZE / 1000)],
-        });
-
-        //calculate remaining request
-        const remaining = MAX_REQUESTS - currentrequests;
-
-        //set response headers
-        res.set({
-            "X-RateLimit-Limit": MAX_REQUESTS,
-            "X-RateLimit-Remaining": Math.max(0,remaining),
-            "X-RateLimit-Reset": Date.now() + WINDOW_SIZE,
-        });
-
-        // block if limit is exceeded
-        if(currentrequests > MAX_REQUESTS){
-            const ttl = await redisClient.ttl(key);
-            res.set({"Retry-After": ttl,});
-            res.status(429).json({message: "Too many requests. Please try again later.",retryAfter: ttl});
-        }else{
-
-            next();
-        }
-    }catch(err){
-        console.error("Error in rate limiter:", err);
-        res.status(500).json({message:"Internal server error"});
+    const {fileName,filetype} = req.body;
+      
+    if(!fileName || !filetype){
+        return res.status(400).json({message:"fileName and fileType are required"});
     }
+    const key = `uploads/${Date.now()}-${fileName}`;
+     const command = new PutObjectCommmand({
+        Bucket: process.env.S3_BUCKET,
+        Key: key,
+        ContentType: filetype,
+     });
+     const uploadUrl = await getSignedUrl(s3,command,{
+        expiresIn:60,
+     });
+     res.json({
+        uploadUrl,
+        fileUrl: `https://${process.env.S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`,
+     });
+ }
+  catch (err){
+    console.error(err);
+    res.status(500).json({message:"Error generating upload URL"});
 }
-
-//Apply rate limiter
-app.use(rateLimiter);
-
-app.get("/",(req,res)=>{
-    res.json({success:true,message:"running successfully"});
-})
-
-//protected route
-app.get("/api/data",(req,res) => {
-    res.json({success:true,message:"This is protected data",
-        data: {
-            name: "Ansh Gupta",
-            description: "This data is protected by rate limiting middleware."
-        }
-    });
-})
-
-//login route
-app.post("/login",(req,res) => {
-    res.json({success:true,message:"Login successful"});
 });
 
-//start server
-async function startServer(){
-    try{
-        await redisClient.connect();
-        app.listen(Port,() => {
-            console.log(`Server running on port ${Port}`);
-        });
-    } catch(err){
-        console.error("Failed to start server:", err);
-    }
-}
-startServer();
+// start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT,() => {
+    console.log(`Server running on port ${PORT}`);
+});
+
+// import express from "express";
+// import cors from "cors";
+// import dotenv from "dotenv";
+
+// import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+// import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+
+// dotenv.config();
+
+// const app = express();
+// app.use(cors());
+// app.use(express.json());
+
+// // -------------------- AWS S3 CONFIG --------------------
+// const s3 = new S3Client({
+//   region: process.env.AWS_REGION,
+//   credentials: {
+//     accessKeyId: process.env.AWS_ACCESS_KEY,
+//     secretAccessKey: process.env.AWS_SECRET_KEY,
+//   },
+// });
+
+// // -------------------- API: GET UPLOAD URL --------------------
+// app.post("/get-upload-url", async (req, res) => {
+//   try {
+//     const { fileName, fileType } = req.body;
+
+//     if (!fileName || !fileType) {
+//       return res.status(400).json({ message: "fileName and fileType required" });
+//     }
+
+//     const key = `uploads/${Date.now()}-${fileName}`;
+
+//     const command = new PutObjectCommand({
+//       Bucket: process.env.S3_BUCKET,
+//       Key: key,
+//       ContentType: fileType,
+//     });
+
+//     const uploadUrl = await getSignedUrl(s3, command, {
+//       expiresIn: 60, // 1 minute
+//     });
+
+//     res.json({
+//       uploadUrl,
+//       fileUrl: `https://${process.env.S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`,
+//     });
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Error generating upload URL" });
+//   }
+// });
+
+// // -------------------- START SERVER --------------------
+// const PORT = process.env.PORT || 5000;
+
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
