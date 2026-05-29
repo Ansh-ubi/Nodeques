@@ -1855,70 +1855,11 @@ async function getUser(userId) {
 // startServer();
 
 //Upload a file directly to AWS S3 from Node.js.
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-
-import { S3Client,PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-
-dotenv.config();
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-//now aws s3 config
-
-const s3 = new S3Client({
-    region: process.env.AWS_REGION,
-    credentials:{
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-
-    },
-});
-
-//get upload url
-
-app.post("/generate-url",async(req,res)=>{
-    try{
-    const {fileName,filetype} = req.body;
-      
-    if(!fileName || !filetype){
-        return res.status(400).json({message:"fileName and fileType are required"});
-    }
-    const key = `uploads/${Date.now()}-${fileName}`;
-     const command = new PutObjectCommmand({
-        Bucket: process.env.S3_BUCKET,
-        Key: key,
-        ContentType: filetype,
-     });
-     const uploadUrl = await getSignedUrl(s3,command,{
-        expiresIn:60,
-     });
-     res.json({
-        uploadUrl,
-        fileUrl: `https://${process.env.S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`,
-     });
- }
-  catch (err){
-    console.error(err);
-    res.status(500).json({message:"Error generating upload URL"});
-}
-});
-
-// start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT,() => {
-    console.log(`Server running on port ${PORT}`);
-});
-
 // import express from "express";
 // import cors from "cors";
 // import dotenv from "dotenv";
 
-// import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+// import { S3Client,PutObjectCommand } from "@aws-sdk/client-s3";
 // import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // dotenv.config();
@@ -1927,50 +1868,65 @@ app.listen(PORT,() => {
 // app.use(cors());
 // app.use(express.json());
 
-// // -------------------- AWS S3 CONFIG --------------------
+// //now aws s3 config
+
 // const s3 = new S3Client({
-//   region: process.env.AWS_REGION,
-//   credentials: {
-//     accessKeyId: process.env.AWS_ACCESS_KEY,
-//     secretAccessKey: process.env.AWS_SECRET_KEY,
-//   },
+//     region: process.env.AWS_REGION,
+//     credentials:{
+//         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+//         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+
+//     },
 // });
 
-// // -------------------- API: GET UPLOAD URL --------------------
-// app.post("/get-upload-url", async (req, res) => {
-//   try {
-//     const { fileName, fileType } = req.body;
+// //get upload url
 
-//     if (!fileName || !fileType) {
-//       return res.status(400).json({ message: "fileName and fileType required" });
+// app.post("/generate-url",async(req,res)=>{
+//     try{
+//     const {fileName,filetype} = req.body;
+      
+//     if(!fileName || !filetype){
+//         return res.status(400).json({message:"fileName and fileType are required"});
 //     }
-
 //     const key = `uploads/${Date.now()}-${fileName}`;
-
-//     const command = new PutObjectCommand({
-//       Bucket: process.env.S3_BUCKET,
-//       Key: key,
-//       ContentType: fileType,
-//     });
-
-//     const uploadUrl = await getSignedUrl(s3, command, {
-//       expiresIn: 60, // 1 minute
-//     });
-
-//     res.json({
-//       uploadUrl,
-//       fileUrl: `https://${process.env.S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`,
-//     });
-
-//   } catch (err) {
+//      const command = new PutObjectCommmand({
+//         Bucket: process.env.S3_BUCKET,
+//         Key: key,
+//         ContentType: filetype,
+//      });
+//      const uploadUrl = await getSignedUrl(s3,command,{
+//         expiresIn:60,
+//      });
+//      res.json({
+//         uploadUrl,
+//         fileUrl: `https://${process.env.S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`,
+//      });
+//  }
+//   catch (err){
 //     console.error(err);
-//     res.status(500).json({ message: "Error generating upload URL" });
-//   }
+//     res.status(500).json({message:"Error generating upload URL"});
+// }
 // });
 
-// // -------------------- START SERVER --------------------
+// // start server
 // const PORT = process.env.PORT || 5000;
-
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`);
+// app.listen(PORT,() => {
+//     console.log(`Server running on port ${PORT}`);
 // });
+
+
+//process objects
+// console.log(process);
+
+// console.log(process.argv);
+          
+// console.log(process.platform);
+
+//--for get os info
+// const os = require('os')
+
+// console.log(os.platform())
+// console.log(os.cpus())
+
+
+// Create a WebSocket chat server using ws or socket.io
