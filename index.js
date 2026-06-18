@@ -5,6 +5,8 @@
 //     { id: 1, name: 'Aman' }
 // ]
 
+const { schedule } = require("node-cron");
+
 //const { error } = require("winston");
 
 // const unique = [...new Map(user.map((user => [user.id,user]))).values()];
@@ -2263,172 +2265,171 @@ async function getUser(userId) {
 // },30000)
 
 //2nd part. from scoket.io
-   const express = require("express");
-   const http = require("http");
-   const jwt = require("jsonwebtoken");
-   const { Server } = require("socket.io");
+//    const express = require("express");
+//    const http = require("http");
+//    const jwt = require("jsonwebtoken");
+//    const { Server } = require("socket.io");
 
-   const app = express();
-   const server = http.createServer(app);
+//    const app = express();
+//    const server = http.createServer(app);
 
-   const io = new Server(server,{
-    cors: {
-      origin: "*"
-    },
-   });
+//    const io = new Server(server,{
+//     cors: {
+//       origin: "*"
+//     },
+//    });
 
-   const JWT_SECRET = "super-secret-key";
+//    const JWT_SECRET = "super-secret-key";
 
-   //fake db
-   const users = new Map();
-   const conversations = new Map();
-   const messages = [];
+//    //fake db
+//    const users = new Map();
+//    const conversations = new Map();
+//    const messages = [];
 
-   //http api
-   app.use(express.json());
+//    //http api
+//    app.use(express.json());
 
-   app.post("/login",(req,res) => {
-    const {userId,username} = req.body;
+//    app.post("/login",(req,res) => {
+//     const {userId,username} = req.body;
 
-    const token = jwt.sign({userId,username,},JWT_SECRET,{expiresIn:"7d" });
-    res.json({token});
-   });
+//     const token = jwt.sign({userId,username,},JWT_SECRET,{expiresIn:"7d" });
+//     res.json({token});
+//    });
 
-   app.get("/",(_,res) => {
-     res.json({status:"runnning",onlineUsers:users.size,messages:messages.length,});
-  });
+//    app.get("/",(_,res) => {
+//      res.json({status:"runnning",onlineUsers:users.size,messages:messages.length,});
+//   });
 
-  //socket auth
+//   //socket auth
  
-io.use((socket,next)=>{
-  try{
-    const token = socket.handshake.auth.token;
+// io.use((socket,next)=>{
+//   try{
+//     const token = socket.handshake.auth.token;
 
-    const user = jwt.verify(token,JWT_SECRET);
-    socket.user = user;
-    next();
-  } catch(err){
-    next(new Error("Unauthorized"));
-  }
-});
+//     const user = jwt.verify(token,JWT_SECRET);
+//     socket.user = user;
+//     next();
+//   } catch(err){
+//     next(new Error("Unauthorized"));
+//   }
+// });
 
-//socket events
-io.on("connection",(socket) => {
-  const user = socket.user;
+// //socket events
+// io.on("connection",(socket) => {
+//   const user = socket.user;
 
-  users.set(user.userId, {
-    socketId: socket.id,
-    user,
-  });
-  console.log(`User connected: ${user.username} (${user.userId})`);
+//   users.set(user.userId, {
+//     socketId: socket.id,
+//     user,
+//   });
+//   console.log(`User connected: ${user.username} (${user.userId})`);
 
-  io.emit("user:online", {
-    userId: user.userId,
-    username: user.username,
-  });
-  //create conversation
-  socket.on("conversation:create",({conversationId}) => {
-    if(!conversations.has(conversationId)){
-      conversations.set(conversationId,{
-        id: conversationId,
-        createdAt: new Date().toISOString(),
-      });
-    }
-   socket.join(conversationId);
-   socket.emit("conversation:created",{conversationId,});
-  });
+//   io.emit("user:online", {
+//     userId: user.userId,
+//     username: user.username,
+//   });
+//   //create conversation
+//   socket.on("conversation:create",({conversationId}) => {
+//     if(!conversations.has(conversationId)){
+//       conversations.set(conversationId,{
+//         id: conversationId,
+//         createdAt: new Date().toISOString(),
+//       });
+//     }
+//    socket.join(conversationId);
+//    socket.emit("conversation:created",{conversationId,});
+//   });
 
 
-  // join conversation
-  socket.on("converation:join",({conversationId}) => {
-    socket.join(conversationId);
-    socket.emit("conversation:joined",{coversationId,});
-  });
+//   // join conversation
+//   socket.on("converation:join",({conversationId}) => {
+//     socket.join(conversationId);
+//     socket.emit("conversation:joined",{coversationId,});
+//   });
 
-  //send message
-  socket.on("message:send",({conversationId,content}) => {
-    const message = {
-      id: crypto.randomUUID(),
-      conversationId,
-      senderId:user.userId,
-      senderName: user.username,
-      content,
-      delivered:true,
-      createdAt:new Date().toISOString(),
-        };
-        messages.push(message);
-        io.to(conversationId).emit("message:new",message);
-  });
-  // load history 
-  socket.on("message:list",({conversationId}) => {
-    const history = messages.filter((m) => m.conversationId === conversationId);
-    socket.emit("message:history",history);
-  });
+//   //send message
+//   socket.on("message:send",({conversationId,content}) => {
+//     const message = {
+//       id: crypto.randomUUID(),
+//       conversationId,
+//       senderId:user.userId,
+//       senderName: user.username,
+//       content,
+//       delivered:true,
+//       createdAt:new Date().toISOString(),
+//         };
+//         messages.push(message);
+//         io.to(conversationId).emit("message:new",message);
+//   });
+//   // load history 
+//   socket.on("message:list",({conversationId}) => {
+//     const history = messages.filter((m) => m.conversationId === conversationId);
+//     socket.emit("message:history",history);
+//   });
    
-  //typing
-  socket.on("typing:start",({conversationId}) => {
-      socket.to(conversationId).emit("typing:update",{
-        userId: user.userId,
+//   //typing
+//   socket.on("typing:start",({conversationId}) => {
+//       socket.to(conversationId).emit("typing:update",{
+//         userId: user.userId,
 
-        username: user.username,
-        typing:true,
-      });
-  });
-  socket.on("typing:stop",({conversationId}) => {
-    socket.to(conversationId).emit("typing:update",{
-      userId: user.userId,
-      username: user.username,
-      typing:false,
-    });
-  });
+//         username: user.username,
+//         typing:true,
+//       });
+//   });
+//   socket.on("typing:stop",({conversationId}) => {
+//     socket.to(conversationId).emit("typing:update",{
+//       userId: user.userId,
+//       username: user.username,
+//       typing:false,
+//     });
+//   });
 
-    // Read reciepts
-    socket.on("message:read",({conversationId,messageId}) => {
-      io.to(conversationId).emit("message:read-recipt",{
-          messageId,
-          userId:user.userId,
-      });
-    });
+//     // Read reciepts
+//     socket.on("message:read",({conversationId,messageId}) => {
+//       io.to(conversationId).emit("message:read-recipt",{
+//           messageId,
+//           userId:user.userId,
+//       });
+//     });
 
-    //private message
-    socket.on("private:send",({targetUserId,content}) => {
-      const target = users.get(targetUserId);
-      if(!target) return ;
+//     //private message
+//     socket.on("private:send",({targetUserId,content}) => {
+//       const target = users.get(targetUserId);
+//       if(!target) return ;
 
-      io.to(target.socketId).emit("private:new",{
-        fromUserId:user.userId,
-        fromUsername: user.username,
-        content,
-        createdAt: new Date().toISOString(),
-      });
-    });
+//       io.to(target.socketId).emit("private:new",{
+//         fromUserId:user.userId,
+//         fromUsername: user.username,
+//         content,
+//         createdAt: new Date().toISOString(),
+//       });
+//     });
   
-    //online user
-    socket.on("user:online",() => {
-     socket.emit("user:list",Array.from(users.values()).map((u) => ({
-      userId: u.user.userId,
-      username: u.user.username,
-     }))
-    );
-    });
+//     //online user
+//     socket.on("user:online",() => {
+//      socket.emit("user:list",Array.from(users.values()).map((u) => ({
+//       userId: u.user.userId,
+//       username: u.user.username,
+//      }))
+//     );
+//     });
 
-    //disconnect
-    socket.on("disconnect",() => {
-      users.delete(user.userId);
-      io.emit("user:offline",{
-        userId:user.userId,
-        username:user.username,
-      });
-      console.log(`User disconnected: ${user.username} (${user.userId})`);
-    });
-});
+//     //disconnect
+//     socket.on("disconnect",() => {
+//       users.delete(user.userId);
+//       io.emit("user:offline",{
+//         userId:user.userId,
+//         username:user.username,
+//       });
+//       console.log(`User disconnected: ${user.username} (${user.userId})`);
+//     });
+// });
 
-server.listen(3000,() =>{
-  console.log("Server running on port 3000");
-});
+// server.listen(3000,() =>{
+//   console.log("Server running on port 3000");
+// });
 
  
-
 
 
 
@@ -2466,3 +2467,40 @@ server.listen(3000,() =>{
 
 // userEmitter.emit("userRegistred", "Ansh Gupta");
 // userEmitter.emit("userRegistred", "Raj Gupta");
+
+
+//Schedule recurring tasks using node-cron
+
+// const cron = require('node-cron');
+
+// // Create scheduled task
+// const task = cron.schedule('0 9 * * 2', () => {
+//   console.log('Running task');
+// }, {
+//   scheduled: false,  // Don't start immediately
+//   timezone: 'America/New_York',
+// });
+
+// // Start the task
+// task.start();
+
+// // Stop the task
+// task.stop();
+
+// // Validate cron expression
+// const isValid = cron.validate('0 11 * * 2');
+// console.log(isValid);  // true
+
+
+//After 10 sec excute again & again
+// const cron = require('node-cron');
+//  cron.schedule('*/10 * * * * *',async()=>{
+//     try{
+//         console.log('Starting async task');
+//         // await performDatabaseCleanup();
+//         // await sendReports();
+//         console.log('task completed');
+//     }catch(error){
+//         console.error('Task failed',error);
+//     }
+//  });
