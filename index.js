@@ -2429,25 +2429,6 @@ async function getUser(userId) {
 //   console.log("Server running on port 3000");
 // });
 
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // create a custom event 
 
@@ -2504,3 +2485,39 @@ async function getUser(userId) {
 //         console.error('Task failed',error);
 //     }
 //  });
+
+
+
+
+
+
+const express = require("express");
+require("dotenv").config();
+
+const { connectDB } = require("./config/db");
+
+const app = express();
+
+app.use(express.json());
+
+// Connect Database
+connectDB();
+
+// Routes
+app.use(
+  "/api/users",
+  require("./routes/userRoutes")
+);
+
+app.get("/", (req, res) => {
+  res.send("Server Running...");
+});
+
+const PORT =
+  process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(
+    `Server running on port ${PORT}`
+  );
+});
