@@ -25,7 +25,7 @@ const createUser = async (data) => {
 };
 
 const getUsers = async () => {
-  return await userModel.getUsers();
+  return await userModel.getUser();
 };
 
 module.exports = {

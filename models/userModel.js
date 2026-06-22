@@ -12,7 +12,7 @@ const getUser = async() => {
 };
 
 const findUserByEmail = async (email) => {
-    const [row] = await pool.execute("Select * From emp Where emp = ?",[email]);
+    const [row] = await pool.execute("Select * From emp Where email = ?",[email]);
     return row[0]; 
 };
 
